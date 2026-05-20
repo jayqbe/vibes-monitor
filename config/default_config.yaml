@@ -1,0 +1,22 @@
+# Token Telemetry Default Configuration
+# This file contains the default configuration values.
+# Users can override these by creating a config/local.yaml file or using environment variables.
+
+# Proxy server configuration
+proxy:
+  host: localhost
+  port: 8000
+
+# Mistral API configuration
+mistral:
+  base_url: "https://api.mistral.ai"
+
+# Database configuration
+database:
+  path: "telemetry.db"
+
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "telemetry.log"

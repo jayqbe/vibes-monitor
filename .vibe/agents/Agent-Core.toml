@@ -1,0 +1,21 @@
+display_name = "Core"
+description = "Core Implementation Specialist - Database, cost calculation, proxy server, reporter. Assigned WP-002, WP-003, WP-004, WP-005"
+safety = "safe"
+agent_type = "subagent"
+profile = "default"
+enabled_tools = ["grep", "read_file", "write_file", "search_replace", "bash", "python"]
+
+[work_packages]
+assigned = ["WP-002", "WP-003", "WP-004", "WP-005"]
+
+[skills]
+primary = ["Python development", "SQLite", "HTTP protocols", "data modeling"]
+
+[issues]
+assigned = [
+    "CORE-001", "CORE-002", "CORE-003", "CORE-004", "CORE-005",
+    "CORE-006", "CORE-007", "CORE-008", "CORE-009", "CORE-010", "CORE-011"
+]
+
+[tools]
+requires = ["Python 3.11+", "SQLite3", "http.server", "requests library"]

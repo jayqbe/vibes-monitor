@@ -1,0 +1,80 @@
+# Multi-Model Configuration
+# Configuration with multiple models for testing different providers
+
+# Proxy server configuration
+proxy:
+  host: localhost
+  port: 8000
+
+# Mistral API configuration
+mistral:
+  base_url: "https://api.mistral.ai"
+
+# Database configuration
+database:
+  path: "telemetry_multi.db"
+
+# Logging configuration
+logging:
+  level: INFO
+  file: "telemetry.log"
+
+# Pricing configuration with multiple providers
+pricing:
+  # Mistral AI Models
+  mistral-tiny:
+    input: 0.25
+    output: 0.75
+  
+  mistral-small:
+    input: 0.25
+    output: 0.75
+  
+  mistral-medium:
+    input: 0.25
+    output: 0.75
+  
+  mistral-large:
+    input: 0.25
+    output: 0.75
+  
+  codestral-latest:
+    input: 0.25
+    output: 0.75
+  
+  # Mistral Embedding Models (no output tokens)
+  mistral-embed:
+    input: 0.10
+    output: 0.00
+  
+  # Custom/Enterprise Models
+  enterprise-small:
+    input: 0.30
+    output: 0.90
+  
+  enterprise-medium:
+    input: 0.50
+    output: 1.50
+  
+  enterprise-large:
+    input: 0.75
+    output: 2.25
+  
+  # Fine-tuned models
+  fine-tuned-code:
+    input: 0.40
+    output: 1.20
+  
+  fine-tuned-legal:
+    input: 0.60
+    output: 1.80
+  
+  # Legacy models (deprecated but still supported)
+  mistral-7b:
+    input: 0.20
+    output: 0.60
+  
+  # Default for any unknown models
+  default:
+    input: 0.25
+    output: 0.75

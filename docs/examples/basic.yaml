@@ -1,0 +1,29 @@
+# Basic Configuration
+# Minimal configuration for quick start with Token Telemetry
+# Copy this file to config/local.yaml to use
+
+# Proxy server configuration
+proxy:
+  host: localhost
+  port: 8000
+
+# Mistral API configuration (default)
+mistral:
+  base_url: "https://api.mistral.ai"
+
+# Database configuration
+database:
+  path: "telemetry.db"
+
+# Logging configuration (minimal)
+logging:
+  level: INFO
+  file: "telemetry.log"
+
+# Note: Pricing configuration will use defaults from default_pricing.yaml
+# To override, uncomment and modify the pricing section below:
+#
+# pricing:
+#   mistral-medium:
+#     input: 0.25
+#     output: 0.75

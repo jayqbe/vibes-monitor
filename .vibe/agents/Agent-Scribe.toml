@@ -1,0 +1,21 @@
+display_name = "Scribe"
+description = "Technical Writer - Documentation. Assigned WP-008"
+safety = "safe"
+agent_type = "subagent"
+profile = "explore"
+enabled_tools = ["grep", "read_file", "write_file"]
+
+[work_packages]
+assigned = ["WP-008"]
+
+[skills]
+primary = ["Technical writing", "API documentation", "examples"]
+
+[issues]
+assigned = ["DOC-001", "DOC-002", "DOC-003"]
+
+[tools]
+requires = ["Markdown", "docstrings", "code examples"]
+
+[metrics]
+documentation_completion = "100%"

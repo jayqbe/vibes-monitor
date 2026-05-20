@@ -1,0 +1,78 @@
+# Custom Pricing Configuration
+# Example of custom pricing for different scenarios
+
+# Proxy server configuration
+proxy:
+  host: localhost
+  port: 8000
+
+# Mistral API configuration
+mistral:
+  base_url: "https://api.mistral.ai"
+
+# Database configuration
+database:
+  path: "telemetry.db"
+
+# Logging configuration
+logging:
+  level: INFO
+  file: "telemetry.log"
+
+# Custom pricing configurations for different scenarios
+pricing:
+  # Scenario 1: Discounted pricing (e.g., for volume customers)
+  mistral-tiny:
+    input: 0.20  # 20% discount
+    output: 0.60  # 20% discount
+  
+  mistral-small:
+    input: 0.20
+    output: 0.60
+  
+  mistral-medium:
+    input: 0.20
+    output: 0.60
+  
+  mistral-large:
+    input: 0.20
+    output: 0.60
+  
+  # Scenario 2: Premium pricing (e.g., for priority access)
+  # Uncomment to use premium pricing instead
+  # mistral-tiny:
+  #   input: 0.30
+  #   output: 0.90
+  #
+  # mistral-small:
+  #   input: 0.30
+  #   output: 0.90
+  #
+  # mistral-medium:
+  #   input: 0.35
+  #   output: 1.05
+  #
+  # mistral-large:
+  #   input: 0.40
+  #   output: 1.20
+  
+  # Scenario 3: Per-model custom pricing
+  codestral-latest:
+    input: 0.25
+    output: 1.00  # Higher output cost for code generation
+  
+  # Embedding models - typically only input tokens
+  mistral-embed:
+    input: 0.10
+    output: 0.00  # No output tokens for embeddings
+  
+  # Special models
+  # (Example: very large context window models)
+  mistral-100k:
+    input: 0.35
+    output: 1.05
+  
+  # Default for any unknown models
+  default:
+    input: 0.25
+    output: 0.75

@@ -1,0 +1,43 @@
+{
+  "proxy": {
+    "host": "localhost",
+    "port": 8000
+  },
+  "mistral": {
+    "base_url": "https://api.mistral.ai"
+  },
+  "database": {
+    "path": "telemetry.db"
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "telemetry.log"
+  },
+  "pricing": {
+    "mistral-tiny": {
+      "input": 0.25,
+      "output": 0.75
+    },
+    "mistral-small": {
+      "input": 0.25,
+      "output": 0.75
+    },
+    "mistral-medium": {
+      "input": 0.25,
+      "output": 0.75
+    },
+    "mistral-large": {
+      "input": 0.25,
+      "output": 0.75
+    },
+    "codestral-latest": {
+      "input": 0.25,
+      "output": 0.75
+    },
+    "default": {
+      "input": 0.25,
+      "output": 0.75
+    }
+  }
+}

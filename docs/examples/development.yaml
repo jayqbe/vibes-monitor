@@ -1,0 +1,59 @@
+# Development Configuration
+# Configuration for local development with debugging enabled
+
+# Proxy server configuration
+proxy:
+  host: localhost
+  port: 8000
+
+# Mistral API configuration
+mistral:
+  base_url: "https://api.mistral.ai"
+
+# Database configuration - use in-memory for testing
+database:
+  path: "telemetry_dev.db"
+
+# Logging configuration - verbose for development
+logging:
+  level: DEBUG  # Most verbose - shows all debug messages
+  format: "[%(asctime)s] %(levelname)s in %(name)s: %(message)s"
+  file: "telemetry_debug.log"
+
+# Pricing configuration with test models
+pricing:
+  # Standard Mistral models
+  mistral-tiny:
+    input: 0.25
+    output: 0.75
+  
+  mistral-small:
+    input: 0.25
+    output: 0.75
+  
+  mistral-medium:
+    input: 0.25
+    output: 0.75
+  
+  mistral-large:
+    input: 0.25
+    output: 0.75
+  
+  codestral-latest:
+    input: 0.25
+    output: 0.75
+  
+  # Test model with custom pricing for development
+  test-model:
+    input: 0.01  # Cheaper for testing
+    output: 0.03
+  
+  # Free model for testing
+  free-model:
+    input: 0.00
+    output: 0.00
+  
+  # Default for any unknown models
+  default:
+    input: 0.25
+    output: 0.75

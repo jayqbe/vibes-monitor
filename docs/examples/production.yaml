@@ -1,0 +1,58 @@
+# Production Configuration
+# Production-ready configuration for Token Telemetry
+# Recommended for production deployments
+
+# Proxy server configuration
+proxy:
+  host: 0.0.0.0  # Allow external connections
+  port: 8000
+
+# Mistral API configuration
+mistral:
+  base_url: "https://api.mistral.ai"
+
+# Database configuration
+database:
+  # Use absolute path for production
+  path: "/var/lib/token_telemetry/telemetry.db"
+
+# Logging configuration
+logging:
+  level: INFO  # Or WARNING for less verbose
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "/var/log/token_telemetry/telemetry.log"
+
+# Pricing configuration (using Mistral AI defaults)
+pricing:
+  # Standard Mistral models
+  mistral-tiny:
+    input: 0.25
+    output: 0.75
+  
+  mistral-small:
+    input: 0.25
+    output: 0.75
+  
+  mistral-medium:
+    input: 0.25
+    output: 0.75
+  
+  mistral-large:
+    input: 0.25
+    output: 0.75
+  
+  codestral-latest:
+    input: 0.25
+    output: 0.75
+  
+  # Default for any unknown models
+  default:
+    input: 0.25
+    output: 0.75
+
+# Note: For production, consider:
+# 1. Setting up log rotation (external tool like logrotate)
+# 2. Using a proper process manager (systemd, supervisor)
+# 3. Setting up HTTPS via reverse proxy (nginx, Apache)
+# 4. Regular database backups
+# 5. Monitoring and alerting

@@ -1,0 +1,30 @@
+# Token Telemetry Default Pricing Configuration
+# Pricing is per 1M tokens (0.25 per 1M input tokens, 0.75 per 1M output tokens)
+# Based on Mistral AI pricing as of May 2026
+
+# Mistral AI Models
+mistral-tiny:
+  input: 0.25
+  output: 0.75
+
+mistral-small:
+  input: 0.25
+  output: 0.75
+
+mistral-medium:
+  input: 0.25
+  output: 0.75
+
+mistral-large:
+  input: 0.25
+  output: 0.75
+
+# Codestral (code-specific model)
+codestral-latest:
+  input: 0.25
+  output: 0.75
+
+# Default pricing for unknown models (can be overridden)
+default:
+  input: 0.25
+  output: 0.75

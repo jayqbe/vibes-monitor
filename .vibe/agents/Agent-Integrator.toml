@@ -1,0 +1,21 @@
+display_name = "Integrator"
+description = "Integration & Deployment Specialist - End-to-end validation, packaging, deployment. Assigned WP-009, partial WP-006"
+safety = "safe"
+agent_type = "subagent"
+profile = "default"
+enabled_tools = ["grep", "read_file", "write_file", "search_replace", "bash", "python"]
+
+[work_packages]
+assigned = ["WP-009", "WP-006"]
+
+[skills]
+primary = ["Python packaging", "deployment automation", "validation"]
+
+[issues]
+assigned = ["DEP-001", "DEP-002", "DEP-003"]
+
+[tools]
+requires = ["pip", "setuptools", "twine", "deployment scripts"]
+
+[metrics]
+deployment_readiness = "Zero critical bugs"
