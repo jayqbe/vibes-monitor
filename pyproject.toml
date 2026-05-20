@@ -48,10 +48,10 @@ telemetry-proxy = "token_telemetry.proxy:main"
 telemetry-report = "token_telemetry.reporter:main"
 
 [project.urls]
-Homepage = "https://github.com/mistralai/token-telemetry"
-Documentation = "https://github.com/mistralai/token-telemetry#readme"
-Repository = "https://github.com/mistralai/token-telemetry"
-Issues = "https://github.com/mistralai/token-telemetry/issues"
+Homepage = "https://github.com/jayqbe/vibes-monitor"
+Documentation = "https://github.com/jayqbe/vibes-monitor#readme"
+Repository = "https://github.com/jayqbe/vibes-monitor"
+Issues = "https://github.com/jayqbe/vibes-monitor/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

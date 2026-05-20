@@ -15,8 +15,8 @@ Thank you for your interest in contributing to Token Telemetry! This document pr
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/your-username/token-telemetry.git
-   cd token-telemetry
+   git clone https://github.com/jayqbe/vibes-monitor.git
+   cd vibes-monitor
    ```
 
 3. **Create a virtual environment** (recommended):

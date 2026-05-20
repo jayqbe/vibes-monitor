@@ -22,8 +22,8 @@ A **standalone token telemetry system** that runs as a proxy wrapper around Vibe
 
 ```bash
 # Clone the repository
-git clone https://github.com/mistralai/token-telemetry.git
-cd token-telemetry
+git clone https://github.com/jayqbe/vibes-monitor.git
+cd vibes-monitor
 
 # Install in development mode
 pip install -e ".[dev]"

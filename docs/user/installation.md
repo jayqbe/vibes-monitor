@@ -16,8 +16,8 @@ This guide covers all installation options for Token Telemetry.
 
 ```bash
 # Clone the repository
-git clone https://github.com/mistralai/token-telemetry.git
-cd token-telemetry
+git clone https://github.com/jayqbe/vibes-monitor.git
+cd vibes-monitor
 
 # Install in development mode (editable)
 pip install -e ".[dev]"
@@ -29,8 +29,8 @@ The development installation includes all dependencies plus development tools (t
 
 ```bash
 # Clone the repository
-git clone https://github.com/mistralai/token-telemetry.git
-cd token-telemetry
+git clone https://github.com/jayqbe/vibes-monitor.git
+cd vibes-monitor
 
 # Install only production dependencies
 pip install -e .
