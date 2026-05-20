@@ -179,7 +179,7 @@ def _load_env_config() -> Dict[str, Any]:
     - TELEMETRY_PROXY_PORT -> proxy.port
     - MISTRAL_BASE_URL -> mistral.base_url
     - TELEMETRY_DB_PATH -> database.path
-    - VIBE_API_ENDPOINT -> mistral.base_url (override)
+    - VIBE_API_ENDPOINT -> Used by Vibe CLI to locate the proxy, NOT for proxy's mistral.base_url
     
     Returns:
         Dictionary containing configuration from environment
@@ -199,9 +199,10 @@ def _load_env_config() -> Dict[str, Any]:
     mistral = {}
     if 'MISTRAL_BASE_URL' in os.environ:
         mistral['base_url'] = _get_env_value('MISTRAL_BASE_URL')
-    # VIBE_API_ENDPOINT overrides mistral.base_url
-    if 'VIBE_API_ENDPOINT' in os.environ:
-        mistral['base_url'] = _get_env_value('VIBE_API_ENDPOINT')
+    # NOTE: VIBE_API_ENDPOINT is NOT used for mistral.base_url anymore.
+    # VIBE_API_ENDPOINT is only for Vibe CLI to find the proxy server.
+    # The proxy should forward to mistral.base_url (default: https://api.mistral.ai)
+    # or MISTRAL_BASE_URL if explicitly set.
     if mistral:
         config['mistral'] = mistral
     

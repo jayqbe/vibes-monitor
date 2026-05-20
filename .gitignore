@@ -85,3 +85,8 @@ config/pricing.yaml
 # OS files
 .DS_Store
 Thumbs.db
+
+# Mistral AI Vibe CLI resources
+.vibe/
+docs/agent/
+debug/
