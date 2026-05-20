@@ -144,9 +144,9 @@ proxy:
 
 | Option | Type | Default | Description | Environment Variable |
 |--------|------|---------|-------------|---------------------|
-| `mistral.base_url` | string | `https://api.mistral.ai` | Base URL for Mistral API | `MISTRAL_BASE_URL`, `VIBE_API_ENDPOINT` |
+| `mistral.base_url` | string | `https://api.mistral.ai` | Base URL for Mistral API | `MISTRAL_BASE_URL` |
 
-**Note:** `VIBE_API_ENDPOINT` takes precedence over `MISTRAL_BASE_URL`.
+**Note:** `VIBE_API_ENDPOINT` is **NOT** used for proxy configuration. It is only used by Vibe CLI to locate the proxy server. The proxy forwards all requests to `mistral.base_url`.
 
 **Examples:**
 
@@ -255,10 +255,10 @@ All configuration options can be set via environment variables:
 | `TELEMETRY_PROXY_HOST` | Proxy server host | `localhost` | `export TELEMETRY_PROXY_HOST=0.0.0.0` |
 | `TELEMETRY_PROXY_PORT` | Proxy server port | `8000` | `export TELEMETRY_PROXY_PORT=9000` |
 | `MISTRAL_BASE_URL` | Mistral API endpoint | `https://api.mistral.ai` | `export MISTRAL_BASE_URL=https://custom.endpoint` |
-| `VIBE_API_ENDPOINT` | Override for Mistral URL | None | `export VIBE_API_ENDPOINT=http://localhost:8000` |
+| `VIBE_API_ENDPOINT` | **For Vibe CLI only** - tells Vibe CLI where the proxy is | None | `export VIBE_API_ENDPOINT=http://localhost:8000` |
 | `TELEMETRY_DB_PATH` | Database file path | `telemetry.db` | `export TELEMETRY_DB_PATH=/path/to/db` |
 
-**Priority:** `VIBE_API_ENDPOINT` > `MISTRAL_BASE_URL` > config file > defaults
+**Priority:** Environment variables > config file > defaults. Note: `VIBE_API_ENDPOINT` is **NOT** used by the proxy server - it is only read by Vibe CLI.
 
 ### Using Environment Variables
 

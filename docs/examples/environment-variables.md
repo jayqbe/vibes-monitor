@@ -20,10 +20,10 @@ Token Telemetry supports configuration via environment variables with the follow
 | `TELEMETRY_PROXY_HOST` | Proxy server host | `localhost` | `0.0.0.0` |
 | `TELEMETRY_PROXY_PORT` | Proxy server port | `8000` | `9000` |
 | `MISTRAL_BASE_URL` | Mistral API endpoint | `https://api.mistral.ai` | `https://custom.endpoint` |
-| `VIBE_API_ENDPOINT` | Override for Mistral URL | None | `http://localhost:8000` |
+| `VIBE_API_ENDPOINT` | **For Vibe CLI only** - tells Vibe CLI where the proxy is | None | `http://localhost:8000` |
 | `TELEMETRY_DB_PATH` | Database file path | `telemetry.db` | `/var/lib/token_telemetry/telemetry.db` |
 
-**Note:** `VIBE_API_ENDPOINT` takes precedence over `MISTRAL_BASE_URL`.
+**Note:** `VIBE_API_ENDPOINT` is **NOT** used by the proxy server. It is only read by Vibe CLI to locate the proxy. The proxy forwards requests to `MISTRAL_BASE_URL` (or the default `https://api.mistral.ai`).
 
 ## Usage Examples
 
@@ -95,12 +95,11 @@ python -m token_telemetry.cli proxy
 # Point to a custom Mistral API endpoint
 export MISTRAL_BASE_URL=https://custom.mistral.endpoint
 
-# Or use VIBE_API_ENDPOINT to override
-export VIBE_API_ENDPOINT=https://custom.mistral.endpoint
-
 # Start proxy
 python -m token_telemetry.cli proxy
 ```
+
+**Note:** Do NOT use `VIBE_API_ENDPOINT` to set a custom Mistral API endpoint. `VIBE_API_ENDPOINT` is only for Vibe CLI to find the proxy server. Use `MISTRAL_BASE_URL` to configure where the proxy forwards requests.
 
 ## Docker Examples
 
