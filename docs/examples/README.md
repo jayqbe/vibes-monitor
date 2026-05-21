@@ -34,8 +34,30 @@ python -m token_telemetry.cli proxy
 
 ### 3. Configure Vibe CLI
 
+Vibe CLI does NOT use `VIBE_API_ENDPOINT`. Configure Vibe CLI to use the proxy:
+
+**Method A: Global config**
 ```bash
-export VIBE_API_ENDPOINT=http://localhost:8000
+nano ~/.vibe/config.toml
+# Change api_base from "https://api.mistral.ai/v1" to "http://localhost:8000/v1"
+```
+
+**Method B: Environment variable**
+```bash
+export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
+vibe
+```
+
+**Method C: Project config**
+```bash
+mkdir -p .vibe
+cat > .vibe/config.toml << 'EOF'
+[[providers]]
+name = "mistral"
+api_base = "http://localhost:8000/v1"
+api_key_env_var = "MISTRAL_API_KEY"
+backend = "mistral"
+EOF
 vibe
 ```
 

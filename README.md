@@ -41,9 +41,32 @@ pip install -e .
    telemetry-proxy
    ```
 
-2. **Override Vibe CLI API endpoint**:
+2. **Configure Vibe CLI to use the proxy** (choose one method):
+
+   **Method A: Global config** (persistent for all projects):
    ```bash
-   export VIBE_API_ENDPOINT=http://localhost:8000
+   # Edit ~/.vibe/config.toml and change the Mistral provider's api_base
+   # From: api_base = "https://api.mistral.ai/v1"
+   # To:   api_base = "http://localhost:8000/v1"
+   nano ~/.vibe/config.toml
+   ```
+
+   **Method B: Environment variable** (temporary, current session only):
+   ```bash
+   export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
+   vibe
+   ```
+
+   **Method C: Project-specific config** (isolated to current project):
+   ```bash
+   mkdir -p .vibe
+   cat > .vibe/config.toml << 'EOF'
+   [[providers]]
+   name = "mistral"
+   api_base = "http://localhost:8000/v1"
+   api_key_env_var = "MISTRAL_API_KEY"
+   backend = "mistral"
+   EOF
    vibe
    ```
 
@@ -53,6 +76,8 @@ pip install -e .
    # or
    telemetry-report
    ```
+
+   > **⚠️ Important:** Vibe CLI does NOT use the `VIBE_API_ENDPOINT` environment variable. You must use one of the three methods above to configure Vibe CLI to send requests through the proxy.
 
 ### Configuration
 

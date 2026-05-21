@@ -32,7 +32,8 @@ pip install -e .
 python -m token_telemetry.cli proxy
 
 # Configure Vibe CLI (in another terminal)
-export VIBE_API_ENDPOINT=http://localhost:8000
+# Method B: Environment variable
+export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
 vibe
 
 # Generate report

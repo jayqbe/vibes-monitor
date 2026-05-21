@@ -86,22 +86,39 @@ python -m token_telemetry.cli proxy
    # Should return 404 or similar (proxy is working)
    ```
 
-2. **Check environment variable:**
+2. **Check Vibe CLI configuration:**
+
+   Vibe CLI does NOT use `VIBE_API_ENDPOINT`. Verify you've configured Vibe CLI correctly using one of these methods:
+
+   **Method A: Check global config**
    ```bash
-   echo $VIBE_API_ENDPOINT
-   # Should show: http://localhost:8000
+   grep "api_base" ~/.vibe/config.toml
+   # Should show: api_base = "http://localhost:8000/v1"
+   
+   # If not, edit the file:
+   nano ~/.vibe/config.toml
+   ```
+
+   **Method B: Check environment variable**
+   ```bash
+   echo $VIBE_PROVIDERS
+   # Should show: [{"name": "mistral", "api_base": "http://localhost:8000/v1", ...}]
    
    # If not set:
-   export VIBE_API_ENDPOINT=http://localhost:8000
+   export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
+   ```
+
+   **Method C: Check project config**
+   ```bash
+   cat .vibe/config.toml
+   # Should show api_base = "http://localhost:8000/v1"
    ```
 
 3. **Check host binding:**
    ```bash
-   # If you started with --host 0.0.0.0, use that IP
-   export VIBE_API_ENDPOINT=http://0.0.0.0:8000
-   
-   # Or use 127.0.0.1
-   export VIBE_API_ENDPOINT=http://127.0.0.1:8000
+   # The proxy binds to localhost by default
+   # Make sure Vibe CLI is configured to use localhost:8000/v1
+   # (as shown in the methods above)
    ```
 
 4. **Firewall blocking:**

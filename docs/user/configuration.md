@@ -255,10 +255,15 @@ All configuration options can be set via environment variables:
 | `TELEMETRY_PROXY_HOST` | Proxy server host | `localhost` | `export TELEMETRY_PROXY_HOST=0.0.0.0` |
 | `TELEMETRY_PROXY_PORT` | Proxy server port | `8000` | `export TELEMETRY_PROXY_PORT=9000` |
 | `MISTRAL_BASE_URL` | Mistral API endpoint | `https://api.mistral.ai` | `export MISTRAL_BASE_URL=https://custom.endpoint` |
-| `VIBE_API_ENDPOINT` | **For Vibe CLI only** - tells Vibe CLI where the proxy is | None | `export VIBE_API_ENDPOINT=http://localhost:8000` |
 | `TELEMETRY_DB_PATH` | Database file path | `telemetry.db` | `export TELEMETRY_DB_PATH=/path/to/db` |
 
-**Priority:** Environment variables > config file > defaults. Note: `VIBE_API_ENDPOINT` is **NOT** used by the proxy server - it is only read by Vibe CLI.
+**Priority:** Environment variables > config file > defaults.
+
+> **⚠️ Important Note about Vibe CLI Configuration:**
+> Vibe CLI does NOT use `VIBE_API_ENDPOINT`. To configure Vibe CLI to use the proxy, you must either:
+> - Edit `~/.vibe/config.toml` and change the Mistral provider's `api_base` to `http://localhost:8000/v1`
+> - Use `VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", ...}]'`
+> - Create a project-specific `.vibe/config.toml` with the same change
 
 ### Using Environment Variables
 

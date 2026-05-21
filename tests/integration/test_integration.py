@@ -286,12 +286,12 @@ class TestConfigurationIntegration:
     def test_config_environment_override(self, monkeypatch):
         """Test that environment variables override configuration."""
         monkeypatch.setenv("TELEMETRY_PROXY_PORT", "9999")
-        monkeypatch.setenv("VIBE_API_ENDPOINT", "https://custom.mistral.ai")
+        monkeypatch.setenv("MISTRAL_BASE_URL", "https://custom.mistral.ai")
         config = load_config()
         assert config.proxy.port == 9999
         assert config.mistral.base_url == "https://custom.mistral.ai"
         monkeypatch.delenv("TELEMETRY_PROXY_PORT")
-        monkeypatch.delenv("VIBE_API_ENDPOINT")
+        monkeypatch.delenv("MISTRAL_BASE_URL")
 
 
 # =============================================================================

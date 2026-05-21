@@ -98,42 +98,58 @@ pip install black isort flake8 mypy
 
 ## Setting Up Vibe CLI Integration
 
-### Method 1: Environment Variable (Recommended)
+### Method 1: Global Configuration (Recommended)
 
-Add to your shell configuration file (`~/.bashrc`, `~/.zshrc`, or `~/.profile`):
-
-```bash
-# For bash/zsh
-export VIBE_API_ENDPOINT=http://localhost:8000
-```
-
-Then reload your shell:
+Edit your global Vibe CLI configuration to route all requests through the proxy:
 
 ```bash
-source ~/.bashrc  # or source ~/.zshrc
+# Edit the global config file
+nano ~/.vibe/config.toml
 ```
+
+Find the `[[providers]]` section with `name = "mistral"` and change the `api_base`:
+
+```toml
+# From:
+api_base = "https://api.mistral.ai/v1"
+
+# To:
+api_base = "http://localhost:8000/v1"
+```
+
+Save the file. All future Vibe CLI sessions will now use the proxy.
 
 ### Method 2: Temporary Environment Variable
 
-For testing purposes:
+For testing purposes, use the environment variable:
 
 ```bash
 # In one terminal, start the proxy
-export VIBE_API_ENDPOINT=http://localhost:8000
-vibe
-
-# In another terminal, start the telemetry proxy
 python -m token_telemetry.cli proxy
+
+# In another terminal, use Vibe CLI with proxy
+export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
+vibe
 ```
 
-### Method 3: Vibe CLI Configuration
+> **Note:** Vibe CLI does NOT use `VIBE_API_ENDPOINT`. You must use `VIBE_PROVIDERS` or edit the config file.
 
-If Vibe CLI supports configuration files, you can set the API endpoint there:
+### Method 3: Project-Specific Configuration
 
-```yaml
-# ~/.vibe/config.yaml (hypothetical)
-api_endpoint: http://localhost:8000
+For project-specific tracking, create a local Vibe CLI config:
+
+```bash
+mkdir -p .vibe
+cat > .vibe/config.toml << 'EOF'
+[[providers]]
+name = "mistral"
+api_base = "http://localhost:8000/v1"
+api_key_env_var = "MISTRAL_API_KEY"
+backend = "mistral"
+EOF
 ```
+
+This configuration only affects Vibe CLI when run from this directory.
 
 ## Platform-Specific Notes
 

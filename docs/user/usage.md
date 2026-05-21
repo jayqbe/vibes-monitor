@@ -14,10 +14,38 @@ This starts the telemetry proxy on `localhost:8000`.
 
 ### 2. Configure Vibe CLI to Use Proxy
 
-In a separate terminal:
+**Vibe CLI does NOT use `VIBE_API_ENDPOINT`.** You must configure Vibe CLI to send requests through the proxy using one of these methods:
 
+**Method A: Global config** (persistent for all projects):
 ```bash
-export VIBE_API_ENDPOINT=http://localhost:8000
+# Edit ~/.vibe/config.toml and change the Mistral provider's api_base
+nano ~/.vibe/config.toml
+```
+Find the `[[providers]]` section with `name = "mistral"` and change:
+```toml
+# From:
+api_base = "https://api.mistral.ai/v1"
+
+# To:
+api_base = "http://localhost:8000/v1"
+```
+
+**Method B: Environment variable** (temporary, current session only):
+```bash
+export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
+vibe
+```
+
+**Method C: Project-specific config** (isolated to current project):
+```bash
+mkdir -p .vibe
+cat > .vibe/config.toml << 'EOF'
+[[providers]]
+name = "mistral"
+api_base = "http://localhost:8000/v1"
+api_key_env_var = "MISTRAL_API_KEY"
+backend = "mistral"
+EOF
 vibe
 ```
 
@@ -133,8 +161,8 @@ python -m token_telemetry.reporter --config config/local.yaml
 # Terminal 1: Start the proxy
 python -m token_telemetry.cli proxy
 
-# Terminal 2: Use Vibe CLI with proxy
-export VIBE_API_ENDPOINT=http://localhost:8000
+# Terminal 2: Use Vibe CLI with proxy (using Method B)
+export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
 vibe
 # ... use Vibe CLI as normal ...
 
@@ -165,11 +193,11 @@ python -m token_telemetry.cli report --period daily --output daily_report.md
 ### Scenario 4: Multi-User Tracking
 
 ```bash
-# User 1 session
-export VIBE_API_ENDPOINT=http://localhost:8000
+# User 1 session (using Method B)
+export VIBE_PROVIDERS='[{"name": "mistral", "api_base": "http://localhost:8000/v1", "api_key_env_var": "MISTRAL_API_KEY", "backend": "mistral"}]'
 vibe --message "Hello from user1"
 
-# User 2 session (with origin header)
+# User 2 session (direct curl with origin header)
 curl -X POST http://localhost:8000/v1/chat/completions \
   -H "X-Telemetry-Origin: agent" \
   -H "Content-Type: application/json" \

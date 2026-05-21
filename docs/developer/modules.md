@@ -143,10 +143,9 @@ Load configuration from environment variables.
 | `TELEMETRY_PROXY_HOST` | `proxy.host` | str |
 | `TELEMETRY_PROXY_PORT` | `proxy.port` | int |
 | `MISTRAL_BASE_URL` | `mistral.base_url` | str |
-| `VIBE_API_ENDPOINT` | **N/A (Vibe CLI only)** | str |
 | `TELEMETRY_DB_PATH` | `database.path` | str |
 
-**Note:** `VIBE_API_ENDPOINT` is only used by Vibe CLI to locate the proxy server. It is **NOT** used by the proxy's configuration.
+**Note:** These environment variables configure the **Token Telemetry proxy server**. To configure **Vibe CLI** to use the proxy, you must edit Vibe CLI's configuration (see user documentation for details).
 
 #### `_parse_pricing_config(pricing_data: Dict) -> Dict[str, Dict[str, float]]`
 
