@@ -826,17 +826,23 @@ Initialize the handler.
 
 Override default logging to use our logger.
 
-##### `_extract_model(self) -> str`
+##### `_extract_model(self, post_data: Optional[bytes] = None) -> str`
 
 Extract the model name from the request.
 
 **Checks in order:**
-1. Custom headers: `X-Telemetry-Model`, `X-Model`
-2. Path: looks for model names in the URL path
-3. Default: "unknown"
+1. Custom headers: `X-Telemetry-Model`, `X-Telemetry-Origin`, `X-Model`, `X-Origin`
+2. Request body: parses JSON to extract `model` field
+3. Path: looks for model names in the URL path (mistral-tiny, mistral-small, mistral-medium, mistral-large, codestral)
+4. Default: "unknown"
+
+**Parameters:**
+- `post_data`: Optional request body data (bytes). If provided and is valid JSON, the `model` field will be extracted.
 
 **Returns:**
-- Model name
+- Model name as string
+
+**Note:** Headers take precedence over body, which takes precedence over path.
 
 ##### `_extract_origin(self) -> str`
 
@@ -848,6 +854,33 @@ Extract the origin from the request.
 
 **Returns:**
 - Origin (lowercase)
+
+##### `_should_track_endpoint(self, path: str) -> bool`
+
+Determine if an endpoint should be tracked for telemetry.
+
+**Parameters:**
+- `path`: The request path to check
+
+**Returns:**
+- `True` if the endpoint should be tracked, `False` otherwise
+
+**Behavior:**
+- If both `track_endpoints` (whitelist) and `ignore_endpoints` (blacklist) are `None`: tracks all endpoints (default)
+- If `track_endpoints` is set: only tracks endpoints matching any pattern in the list (whitelist mode)
+- If `ignore_endpoints` is set: tracks all endpoints EXCEPT those matching any pattern in the list (blacklist mode)
+- If both are set: `track_endpoints` (whitelist) takes precedence
+
+**Example:**
+```python
+# Blacklist mode (ignore datalake and connectors)
+handler.ignore_endpoints = ["/datalake/", "/connectors/"]
+handler.track_endpoints = None
+
+# Whitelist mode (only track chat and models)
+handler.track_endpoints = ["/chat/", "/models/"]
+handler.ignore_endpoints = None
+```
 
 ##### `_extract_request_tokens(self) -> int`
 

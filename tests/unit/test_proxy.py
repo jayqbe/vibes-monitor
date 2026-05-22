@@ -195,6 +195,54 @@ class TestModelExtraction:
         model = handler._extract_model()
         assert model == "mistral-medium"
 
+    def test_extract_model_from_request_body(self, mock_handler):
+        """Test extracting model from JSON request body."""
+        import json
+        handler = mock_handler
+        handler.path = "/v1/chat/completions"
+        handler.headers = {}
+        
+        # Model in JSON body
+        post_data = json.dumps({"model": "mistral-large", "messages": []}).encode('utf-8')
+        model = handler._extract_model(post_data=post_data)
+        assert model == "mistral-large"
+
+    def test_extract_model_priority_body_over_path(self, mock_handler):
+        """Test that body model takes precedence over path model."""
+        import json
+        handler = mock_handler
+        handler.path = "/v1/chat/completions/mistral-tiny"
+        handler.headers = {}
+        
+        # Body has different model
+        post_data = json.dumps({"model": "mistral-large", "messages": []}).encode('utf-8')
+        model = handler._extract_model(post_data=post_data)
+        assert model == "mistral-large"  # Body wins over path
+
+    def test_extract_model_priority_headers_over_body(self, mock_handler):
+        """Test that header model takes precedence over body model."""
+        import json
+        handler = mock_handler
+        handler.path = "/v1/chat/completions"
+        handler.headers = {"X-Telemetry-Model": "mistral-small"}
+        
+        # Body has different model
+        post_data = json.dumps({"model": "mistral-large", "messages": []}).encode('utf-8')
+        model = handler._extract_model(post_data=post_data)
+        assert model == "mistral-small"  # Header wins over body
+
+    def test_extract_model_from_body_with_path_fallback(self, mock_handler):
+        """Test that path is used as fallback when body has no model."""
+        import json
+        handler = mock_handler
+        handler.path = "/v1/chat/completions/mistral-medium"
+        handler.headers = {}
+        
+        # Body without model field
+        post_data = json.dumps({"messages": []}).encode('utf-8')
+        model = handler._extract_model(post_data=post_data)
+        assert model == "mistral-medium"  # Falls back to path
+
 
 class TestOriginExtraction:
     """Test origin extraction from requests."""
@@ -230,6 +278,60 @@ class TestOriginExtraction:
         
         origin = handler._extract_origin()
         assert origin == "agent"
+
+
+class TestEndpointFiltering:
+    """Test endpoint tracking/ignoring functionality."""
+
+    def test_should_track_endpoint_default(self, mock_handler):
+        """Test that all endpoints are tracked by default."""
+        handler = mock_handler
+        handler.track_endpoints = None
+        handler.ignore_endpoints = None
+        
+        assert handler._should_track_endpoint("/v1/chat/completions") == True
+        assert handler._should_track_endpoint("/v1/datalake/events") == True
+        assert handler._should_track_endpoint("/v1/connectors/bootstrap") == True
+
+    def test_should_track_endpoint_ignore_patterns(self, mock_handler):
+        """Test ignoring specific endpoint patterns."""
+        handler = mock_handler
+        handler.ignore_endpoints = ["/datalake/", "/connectors/"]
+        handler.track_endpoints = None
+        
+        # Should track model endpoints
+        assert handler._should_track_endpoint("/v1/chat/completions") == True
+        assert handler._should_track_endpoint("/v1/models") == True
+        
+        # Should NOT track ignored endpoints
+        assert handler._should_track_endpoint("/v1/datalake/events") == False
+        assert handler._should_track_endpoint("/v1/datalake/other") == False
+        assert handler._should_track_endpoint("/v1/connectors/bootstrap") == False
+
+    def test_should_track_endpoint_whitelist(self, mock_handler):
+        """Test whitelist mode (only track specified endpoints)."""
+        handler = mock_handler
+        handler.track_endpoints = ["/chat/", "/models/"]
+        handler.ignore_endpoints = None
+        
+        # Should track whitelisted endpoints
+        assert handler._should_track_endpoint("/v1/chat/completions") == True
+        assert handler._should_track_endpoint("/v1/models/list") == True
+        
+        # Should NOT track non-whitelisted endpoints
+        assert handler._should_track_endpoint("/v1/datalake/events") == False
+        assert handler._should_track_endpoint("/v1/other/endpoint") == False
+
+    def test_should_track_endpoint_whitelist_takes_precedence(self, mock_handler):
+        """Test that whitelist takes precedence over blacklist if both are set."""
+        handler = mock_handler
+        handler.track_endpoints = ["/chat/"]
+        handler.ignore_endpoints = ["/datalake/"]
+        
+        # Only whitelist matters when both are set
+        assert handler._should_track_endpoint("/v1/chat/completions") == True
+        assert handler._should_track_endpoint("/v1/datalake/events") == False
+        assert handler._should_track_endpoint("/v1/models") == False
 
 
 class TestRequestTokenExtraction:
@@ -920,6 +1022,8 @@ class TestMainFunction:
             mock_config = Mock()
             mock_config.proxy.host = "localhost"
             mock_config.proxy.port = 8000
+            mock_config.proxy.track_endpoints = None
+            mock_config.proxy.ignore_endpoints = None
             mock_config.mistral.base_url = "https://api.mistral.ai"
             mock_config.database.path = temp_db
             mock_config.pricing = {}

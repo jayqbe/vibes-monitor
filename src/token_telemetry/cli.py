@@ -57,6 +57,8 @@ def start_proxy(args: argparse.Namespace) -> None:
             mistral_base_url=config.mistral.base_url,
             db_path=config.database.path,
             pricing_config=config.pricing,
+            track_endpoints=config.proxy.track_endpoints,
+            ignore_endpoints=config.proxy.ignore_endpoints,
         )
         server.start()
     except KeyboardInterrupt:

@@ -70,6 +70,28 @@ database:
 
 
 @pytest.fixture
+def temp_config_file_with_filtering(temp_db):
+    """Create a temporary configuration file with endpoint filtering."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+        f.write(f"""
+proxy:
+  host: localhost
+  port: 8888
+  ignore_endpoints:
+    - "/datalake/"
+    - "/connectors/"
+mistral:
+  base_url: "https://api.mistral.ai"
+database:
+  path: "{temp_db}"
+""")
+        config_path = f.name
+    yield config_path
+    if os.path.exists(config_path):
+        os.unlink(config_path)
+
+
+@pytest.fixture
 def test_database(temp_db):
     """Create a test database instance."""
     db = Database(db_path=temp_db)
@@ -293,6 +315,14 @@ class TestConfigurationIntegration:
         monkeypatch.delenv("TELEMETRY_PROXY_PORT")
         monkeypatch.delenv("MISTRAL_BASE_URL")
 
+    def test_config_loads_endpoint_filtering(self, temp_config_file_with_filtering):
+        """Test that endpoint filtering configuration is loaded correctly."""
+        config = load_config(config_path=temp_config_file_with_filtering)
+        assert config.proxy.host == "localhost"
+        assert config.proxy.port == 8888
+        assert config.proxy.ignore_endpoints == ["/datalake/", "/connectors/"]
+        assert config.proxy.track_endpoints is None
+
 
 # =============================================================================
 # 3. CLI Integration
@@ -308,6 +338,8 @@ class TestCLIIntegration:
         mock_config = Mock()
         mock_config.proxy.host = "localhost"
         mock_config.proxy.port = 8000
+        mock_config.proxy.track_endpoints = None
+        mock_config.proxy.ignore_endpoints = None
         mock_config.mistral.base_url = "https://api.mistral.ai"
         mock_config.database.path = temp_db
         mock_config.pricing = {}

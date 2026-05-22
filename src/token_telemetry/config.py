@@ -23,6 +23,8 @@ class ProxyConfig:
     """Proxy server configuration."""
     host: str = "localhost"
     port: int = 8000
+    track_endpoints: Optional[list] = None  # List of endpoint patterns to track (None = all)
+    ignore_endpoints: Optional[list] = None  # List of endpoint patterns to ignore
 
 
 @dataclass
@@ -295,6 +297,8 @@ def load_config(config_path: Optional[str] = None) -> Config:
     config.proxy = ProxyConfig(
         host=proxy_data.get('host', 'localhost'),
         port=proxy_data.get('port', 8000),
+        track_endpoints=proxy_data.get('track_endpoints'),
+        ignore_endpoints=proxy_data.get('ignore_endpoints'),
     )
     
     # Parse mistral config

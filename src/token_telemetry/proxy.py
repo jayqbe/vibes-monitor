@@ -11,7 +11,7 @@ import threading
 import time
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 import requests
@@ -51,6 +51,8 @@ class TelemetryHandler(BaseHTTPRequestHandler):
     database: Optional[Database] = None
     cost_calculator: Optional[CostCalculator] = None
     mistral_base_url: str = "https://api.mistral.ai"
+    track_endpoints: Optional[List[str]] = None
+    ignore_endpoints: Optional[List[str]] = None
     
     def __init__(
         self,
@@ -58,23 +60,33 @@ class TelemetryHandler(BaseHTTPRequestHandler):
         database: Optional[Database] = None,
         cost_calculator: Optional[CostCalculator] = None,
         mistral_base_url: str = "https://api.mistral.ai",
+        track_endpoints: Optional[List[str]] = None,
+        ignore_endpoints: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
         self.database = database or self.__class__.database
         self.cost_calculator = cost_calculator or self.__class__.cost_calculator
         self.mistral_base_url = mistral_base_url or self.__class__.mistral_base_url
+        self.track_endpoints = track_endpoints or self.__class__.track_endpoints
+        self.ignore_endpoints = ignore_endpoints or self.__class__.ignore_endpoints
         super().__init__(*args, **kwargs)
     
     def log_message(self, format: str, *args: Any) -> None:
         """Override default logging to use our logger."""
         logger.info("%s - - %s" % (self.address_string(), format % args))
     
-    def _extract_model(self) -> str:
+    def _extract_model(self, post_data: Optional[bytes] = None) -> str:
         """
         Extract the model name from the request.
         
-        Checks headers and path for model information.
+        Checks (in order):
+        1. Custom headers
+        2. Request body (JSON) for 'model' field
+        3. URL path for model name patterns
         
+        Args:
+            post_data: Optional request body data (bytes)
+            
         Returns:
             Model name or 'unknown'
         """
@@ -82,6 +94,18 @@ class TelemetryHandler(BaseHTTPRequestHandler):
         for header in TELEMETRY_HEADERS:
             if header in self.headers:
                 return self.headers[header]
+        
+        # Try to extract from request body (JSON)
+        if post_data:
+            try:
+                body_json = json.loads(post_data.decode('utf-8'))
+                if isinstance(body_json, dict):
+                    model = body_json.get('model')
+                    if model:
+                        return model
+            except (json.JSONDecodeError, UnicodeDecodeError, AttributeError):
+                # If body is not JSON or can't be decoded, continue to other methods
+                pass
         
         # Try to extract from path
         path = self.path.lower()
@@ -107,6 +131,36 @@ class TelemetryHandler(BaseHTTPRequestHandler):
         
         # Default to user
         return "user"
+    
+    def _should_track_endpoint(self, path: str) -> bool:
+        """
+        Determine if an endpoint should be tracked for telemetry.
+        
+        Args:
+            path: The request path
+            
+        Returns:
+            True if the endpoint should be tracked, False otherwise
+        """
+        # Default to tracking all endpoints
+        if self.track_endpoints is None and self.ignore_endpoints is None:
+            return True
+        
+        # If we have a whitelist (track_endpoints), only track if path matches
+        if self.track_endpoints:
+            for pattern in self.track_endpoints:
+                if pattern in path:
+                    return True
+            return False
+        
+        # If we have a blacklist (ignore_endpoints), track unless path matches
+        if self.ignore_endpoints:
+            for pattern in self.ignore_endpoints:
+                if pattern in path:
+                    return False
+            return True
+        
+        return True
     
     def _extract_request_tokens(self) -> int:
         """
@@ -252,8 +306,30 @@ class TelemetryHandler(BaseHTTPRequestHandler):
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length) if content_length > 0 else b""
             
+            # Check if this endpoint should be tracked
+            if not self._should_track_endpoint(self.path):
+                # Just forward the request without logging telemetry
+                request_url = f"{self.mistral_base_url}{self.path}"
+                forward_headers = {}
+                for header in FORWARD_HEADERS:
+                    if header in self.headers:
+                        forward_headers[header] = self.headers[header]
+                
+                request_data = {
+                    "method": "POST",
+                    "url": request_url,
+                    "headers": forward_headers,
+                    "data": post_data,
+                    "model": "ignored",
+                    "origin": "ignored",
+                }
+                
+                response = self._forward_request(request_data)
+                self._build_response(response)
+                return
+            
             # Extract model and origin
-            model = self._extract_model()
+            model = self._extract_model(post_data=post_data)
             origin = self._extract_origin()
             
             # Build request data for forwarding
@@ -308,6 +384,28 @@ class TelemetryHandler(BaseHTTPRequestHandler):
         start_time = time.time()
         
         try:
+            # Check if this endpoint should be tracked
+            if not self._should_track_endpoint(self.path):
+                # Just forward the request without logging telemetry
+                request_url = f"{self.mistral_base_url}{self.path}"
+                forward_headers = {}
+                for header in FORWARD_HEADERS:
+                    if header in self.headers:
+                        forward_headers[header] = self.headers[header]
+                
+                request_data = {
+                    "method": "GET",
+                    "url": request_url,
+                    "headers": forward_headers,
+                    "data": None,
+                    "model": "ignored",
+                    "origin": "ignored",
+                }
+                
+                response = self._forward_request(request_data)
+                self._build_response(response)
+                return
+            
             # Build request data for forwarding
             request_url = f"{self.mistral_base_url}{self.path}"
             
@@ -384,6 +482,8 @@ class ProxyServer:
         mistral_base_url: str = "https://api.mistral.ai",
         db_path: str = "telemetry.db",
         pricing_config: Optional[Dict[str, Dict[str, float]]] = None,
+        track_endpoints: Optional[List[str]] = None,
+        ignore_endpoints: Optional[List[str]] = None,
     ) -> None:
         """
         Initialize the proxy server.
@@ -394,12 +494,16 @@ class ProxyServer:
             mistral_base_url: Base URL for Mistral API
             db_path: Path to SQLite database
             pricing_config: Pricing configuration for cost calculator
+            track_endpoints: List of endpoint patterns to track (whitelist)
+            ignore_endpoints: List of endpoint patterns to ignore (blacklist)
         """
         self.host = host
         self.port = port
         self.mistral_base_url = mistral_base_url
         self.db_path = db_path
         self.pricing_config = pricing_config
+        self.track_endpoints = track_endpoints
+        self.ignore_endpoints = ignore_endpoints
         
         # Create database instance
         self.database = Database(db_path)
@@ -417,6 +521,8 @@ class ProxyServer:
         TelemetryHandler.database = self.database
         TelemetryHandler.cost_calculator = self.cost_calculator
         TelemetryHandler.mistral_base_url = self.mistral_base_url
+        TelemetryHandler.track_endpoints = self.track_endpoints
+        TelemetryHandler.ignore_endpoints = self.ignore_endpoints
         
         # Create server
         self.server = HTTPServer((self.host, self.port), TelemetryHandler)
@@ -439,6 +545,8 @@ class ProxyServer:
         TelemetryHandler.database = self.database
         TelemetryHandler.cost_calculator = self.cost_calculator
         TelemetryHandler.mistral_base_url = self.mistral_base_url
+        TelemetryHandler.track_endpoints = self.track_endpoints
+        TelemetryHandler.ignore_endpoints = self.ignore_endpoints
         
         # Create server
         self.server = HTTPServer((self.host, self.port), TelemetryHandler)
@@ -527,6 +635,8 @@ def main() -> None:
         mistral_base_url=config.mistral.base_url,
         db_path=config.database.path,
         pricing_config=config.pricing,
+        track_endpoints=config.proxy.track_endpoints,
+        ignore_endpoints=config.proxy.ignore_endpoints,
     )
     
     server.start()

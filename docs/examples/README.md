@@ -11,6 +11,7 @@ This directory contains sample configuration files for different use cases of To
 | [development.yaml](development.yaml) | Development configuration | Local development with debugging |
 | [multi-model.yaml](multi-model.yaml) | Multiple models with custom pricing | Testing different models |
 | [custom-pricing.yaml](custom-pricing.yaml) | Custom pricing configuration | Non-standard pricing |
+| [endpoint-filtering.yaml](endpoint-filtering.yaml) | Endpoint filtering configuration | Filter which APIs are tracked |
 | [environment-variables.md](environment-variables.md) | Environment variable examples | Container/Orchestration |
 | [docker-compose.yml](docker-compose.yml) | Docker Compose (future) | Containerized deployment |
 

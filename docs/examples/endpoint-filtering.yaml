@@ -1,0 +1,58 @@
+# Example Configuration: Endpoint Filtering
+# This configuration demonstrates how to filter which API endpoints are tracked
+# for token telemetry.
+
+# =============================================================================
+# Proxy Configuration
+# =============================================================================
+proxy:
+  host: localhost
+  port: 8000
+  
+  # Endpoint filtering options:
+  # - ignore_endpoints: List of patterns to EXCLUDE from tracking (blacklist)
+  # - track_endpoints: List of patterns to INCLUDE in tracking (whitelist)
+  # If both are None (default), all endpoints are tracked.
+  # If both are set, track_endpoints (whitelist) takes precedence.
+  
+  # Example 1: Blacklist mode (recommended for most users)
+  # Ignore non-model endpoints like datalake and connectors
+  ignore_endpoints:
+    - "/datalake/"
+    - "/connectors/"
+  
+  # Example 2: Whitelist mode (alternative)
+  # Only track specific model inference endpoints
+  # track_endpoints:
+  #   - "/chat/"
+  #   - "/models/"
+  #   - "/embeddings/"
+
+# =============================================================================
+# Mistral API Configuration
+# =============================================================================
+mistral:
+  base_url: "https://api.mistral.ai"
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
+database:
+  path: "telemetry.db"
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "telemetry.log"
+
+# =============================================================================
+# Usage Notes
+# =============================================================================
+# This configuration will:
+# - Track all model inference calls (chat/completions, models, etc.)
+# - Ignore telemetry for datalake/events and connectors/bootstrap calls
+# - These non-model endpoints are used by Vibe CLI internally and don't represent
+#   actual model usage that should be counted in your token costs.

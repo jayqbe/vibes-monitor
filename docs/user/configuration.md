@@ -131,6 +131,8 @@ pricing:
 |--------|------|---------|-------------|---------------------|
 | `proxy.host` | string | `localhost` | Host to bind the proxy server to | `TELEMETRY_PROXY_HOST` |
 | `proxy.port` | integer | `8000` | Port to listen on | `TELEMETRY_PROXY_PORT` |
+| `proxy.track_endpoints` | list | `null` | Whitelist: only track endpoints containing these patterns | N/A |
+| `proxy.ignore_endpoints` | list | `null` | Blacklist: ignore endpoints containing these patterns | N/A |
 
 **Examples:**
 
@@ -139,6 +141,28 @@ proxy:
   host: 0.0.0.0  # Allow external connections
   port: 8080    # Use port 8080
 ```
+
+**Endpoint Filtering Examples:**
+
+```yaml
+# Ignore specific endpoints (blacklist mode - default)
+proxy:
+  host: localhost
+  port: 8000
+  ignore_endpoints:
+    - "/datalake/"
+    - "/connectors/"
+
+# Only track specific endpoints (whitelist mode)
+proxy:
+  host: localhost
+  port: 8000
+  track_endpoints:
+    - "/chat/"
+    - "/models/"
+```
+
+**Note:** If both `track_endpoints` and `ignore_endpoints` are set, `track_endpoints` (whitelist) takes precedence. If neither is set, all endpoints are tracked.
 
 ### Mistral API Configuration
 
@@ -313,6 +337,10 @@ Here's a comprehensive example with all options:
 proxy:
   host: 0.0.0.0
   port: 8080
+  # Filter out non-model endpoints
+  ignore_endpoints:
+    - "/datalake/"
+    - "/connectors/"
 
 # Mistral API settings
 mistral:
@@ -499,7 +527,9 @@ server = ProxyServer(
 Config:
   ├── proxy: ProxyConfig
   │     ├── host: str = "localhost"
-  │     └── port: int = 8000
+  │     ├── port: int = 8000
+  │     ├── track_endpoints: Optional[List[str]] = None
+  │     └── ignore_endpoints: Optional[List[str]] = None
   ├── mistral: MistralConfig
   │     └── base_url: str = "https://api.mistral.ai"
   ├── database: DatabaseConfig
